@@ -1,0 +1,199 @@
+{% extends "projectmanager/layout.html" %}
+{% load static %}
+
+{% load tz %}
+{# please note timestamps are timezone-sensitive #}
+{# on this layout, timezone is set to "America/Sao_Paulo" #}
+
+{% block body %}
+<div class="container p-0 p-md-3">
+    {% comment %}
+    <div class="container-fluid">
+        {% if user in project.managers.all %}
+        <h1>User is staff.</h1>
+        {% else %}
+        <h1>User is client.</h1>
+        {% endif %}
+    </div>
+    {% endcomment %}
+    <div class="w-100 py-1"></div>
+    <div class="w-100 py-md-2"></div>
+    <div id="project-area" class="container p-0 p-md-3">
+        <div class="card" id="projectID" data-id="{{ project.pk }}">
+            <div class="card-body">
+                <div id="projectHeader">
+                    <div class="container p-0 p-md-3">
+                        {% if user in project.managers.all or user.is_staff %}
+                        <div class="container-fluid text-right">
+                            <span class="text-right">
+                                <button type="button" class="btn btn-warning mx-2" id="editProject" onclick="editProject()">
+                                    Edit Project
+                                </button>
+                            </span>
+                        </div>
+                        {% endif %}
+                        <h1 class="display-3 pb-2 pb-md-3 text-center">
+                            <span id="projectName">
+                                {{ project.shortname }}
+                            </span>
+                            {% if not project.active %}
+                            <small class="text-muted" id="projectArchived">(Archived)</small>
+                            {% endif %}
+                        </h1>
+                    </div>
+                    <div class="container py-2 mb-2">
+                        {% if project.banner %}
+                        <div class="container text-center pb-2 pb-md-4">
+                            <img id="projectImageBanner" src="{% url 'retrieve_image' 'banner' project.pk %}"
+                            style="max-width: 100%; max-height: 100%;">
+                        </div>
+                        {% endif %}
+                        <div class="w-100 py-2"></div>
+                        <p class="card-text" style="word-wrap: break-word;">
+                            <b>Description:</b> <span id="projectDescription">
+                                {{ project.description }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="container-fluid row mx-0">
+                        <div class="align-self-end text-left px-0">
+                            <h5 class="card-title">
+                                <b>Client:</b> <u>{{ project.client.first_name }} {{ project.client.last_name }}</u>
+                            </h5>
+                            <p class="card-text mb-2 text-muted">
+                                Manager(s):
+                            </p>
+                            <ul>
+                            {% for manager in project.managers.all %}
+                                <li>{{ manager.first_name }} {{ manager.last_name }}</li>
+                            {% empty %}
+                                <li><b>No manager yet.</b></li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="w-100 py-2"></div>
+                    </div>
+                </div>
+                <hr>
+                <div class="w-100 py-2"></div>
+                <div class="container-fluid row mx-0 px-1 justify-content-md-center">
+                    <h2>Commits ({{ project.commit_count }}):</h2>
+                    <div class="w-100 py-1"></div>
+                    {% if user in project.managers.all or user.is_staff and project.active %}
+                    <a class="btn btn-primary" href="{% url 're_create_commit' project.pk %}">
+                        Add new Commit
+                    </a>
+                    {% endif %}
+                    <div class="w-100 py-1"></div>
+                    <ul class="list-group list-group-flush container-fluid">
+                        {% for commit in project.commits.all %}
+                        <li class="list-group-item commit px-md-4 px-0" id="commit-{{ commit.pk }}" data-id="{{ commit.pk }}">
+                            <div class="container-fluid text-wrap" id="text-commit-{{ commit.pk }}">
+                                <p class="text-wrap">
+                                    {{ commit.message }}
+                                </p>
+                                <span class="text-muted"> - by {{ commit.user.first_name }}</span>
+                                <span class="text-muted">on {{ commit.timestamp|timezone:"America/Sao_Paulo" }}</span>
+                            </div>
+                            <div class="col-auto align-self-end text-right px-0 button-area" id="okay-commit-{{ commit.pk }}">
+                                {% if commit.image %}
+                                <button class="btn btn-primary" type="button" data-toggle="collapse"
+                                data-target="#commit-img-{{ commit.pk }}" aria-expanded="false" aria-controls="commit-img-{{ commit.pk }}">
+                                    See Image
+                                </button>
+                                <div class="collapse" id="commit-img-{{ commit.pk }}">
+                                    <div class="w-100 py-2"></div>
+                                    <div class="card card-body p-md-3 p-1">
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-link p-md-3 p-1" data-toggle="modal" data-target="#commit-modal-{{ commit.pk }}">
+                                            <img src="{% url 'retrieve_image' 'commit' commit.pk %}" style="max-width: 100%; max-height: 100%;">
+                                        </button>
+                                    </div>
+                                    <div class="card-footer text-muted text-right">Click to enlarge</div>
+                                </div>
+                                <!-- Modal -->
+                                <div class="modal fade" id="commit-modal-{{ commit.pk }}" tabindex="-1" aria-labelledby="modal-label-{{ commit.pk }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="modal-label-{{ commit.pk }}">{{ commit.message }}</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span class="badge badge-danger align-middle" aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <img src="{% url 'retrieve_image' 'commit' commit.pk %}" style="width: 100%; height: 100%;">
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% if user in project.managers.all or user.is_staff %}
+                                <button type="button" class="btn btn-warning mx-2" id="edit-commit-{{ commit.pk }}" onclick="editPost('commit', {{ commit.pk }})">
+                                    Edit
+                                </button>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item commit px-md-4 px-0">
+                            <div class="container-fluid">
+                                <p><b>No commit yet.</b></p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <hr>
+                <div class="w-100 py-2"></div>
+                <div class="container-fluid row mx-0 justify-content-md-center">
+                    <h2>Documents:</h2>
+                    <div class="w-100 py-1"></div>
+                    {% if user in project.managers.all or user.is_staff and project.active %}
+                    <a class="btn btn-primary" href="{% url 're_upload_file' project.pk %}">
+                        Add new Document
+                    </a>
+                    {% endif %}
+                    <div class="w-100 py-1"></div>
+                    <ul class="list-group list-group-flush container-fluid">
+                        {% for document in project.documents.all %}
+                        <li class="list-group-item document px-md-4 px-0" id="doc-{{ document.pk }}" data-id="{{ document.pk }}">
+                            <div class="container-fluid text-wrap" id="text-document-{{ document.pk }}">
+                                <p class="text-wrap">
+                                    {{ document.message }}
+                                </p>
+                                <span class="text-muted"> - by {{ document.user.first_name }}</span>
+                                <span class="text-muted">on {{ document.timestamp|timezone:"America/Sao_Paulo" }}</span>
+                            </div>
+                            <div class="col-auto align-self-end text-right px-0 button-area" id="okay-document-{{ document.pk }}">
+                                <a class="btn btn-primary" href="{% url 'retrieve_file' document.pk %}">
+                                    Download Document
+                                </a>
+                                {% if user in project.managers.all or user.is_staff %}
+                                <button type="button" class="btn btn-warning mx-2" id="edit-document-{{ document.pk }}" onclick="editPost('document', {{ document.pk }})">
+                                    Edit
+                                </button>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item document px-md-4 px-0">
+                            <div class="container-fluid text-wrap" id="text-document-{{ document.pk }}">
+                                <p class="text-wrap"><b>No Documents yet.</b></p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="w-100 py-3"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'projectmanager/projectManager.js' %}"></script> 
+{% endblock %}

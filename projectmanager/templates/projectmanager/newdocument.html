@@ -1,0 +1,32 @@
+{% extends "projectmanager/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="container">
+    <div class="container-fluid row">
+        <h1 class="display-3 py-2">Upload Document</h1>
+    </div>
+    {% if not user.is_client or user.is_staff %}
+    <div class="w-100 py-1"></div>
+    <div class="container" id="newDocument">
+        <div class="card card-body bg-light">
+            <form enctype="multipart/form-data" action="{% url 'upload_file' %}" method="POST" id="compose-project">
+                {% csrf_token %}
+                {{ form }}
+                <div class="container text-right">
+                    <input type="submit" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <h1>Client view</h1>
+        <div class="w-100 py-3"></div>
+        <div class="container">
+            <h3>Please log in as staff to create commits.</h3>
+        </div>
+        {% endif %}
+        <div class="w-100 py-2"></div>
+        <div class="w-100 py-1"></div>
+    </div>
+</div>
+{% endblock %}

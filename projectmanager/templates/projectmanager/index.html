@@ -1,0 +1,26 @@
+{% extends "projectmanager/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-1">Project Manager</h1>
+      <div class="w-100 py-4"></div>
+      <h3><i>Welcome to the future of project management!</i></h3>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="w-100 py-2"></div>
+    <div class="container">
+        <h3>Hi! Please log in to see your projects! 😄</h3>
+    </div>
+    <div class="w-100 py-2"></div>
+    <div class="container">
+        <a class="btn btn-lg btn-primary" href="{% url 'login' %}" role="button">Log In</a>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

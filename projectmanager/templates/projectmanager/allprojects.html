@@ -1,0 +1,74 @@
+{% extends "projectmanager/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="container">
+    <div class="container-fluid row">
+        <div class="col-12 col-md-8">
+            <h1 class="display-3 py-2">All 
+                {% if active %}
+                Active
+                {% else %}
+                Archived
+                {% endif %}
+                Projects</h1>
+        </div>
+    </div>
+    <div class="w-100 py-2"></div>
+    <div class="w-100 py-1"></div>
+    <div id="project-area" class="container">
+        {% for project in projects %}
+        {# Each "project" is a Project model object. #}
+        <div class="card" id="project-{{ project.pk }}" data-id="{{ project.pk }}">
+            <div class="card-body p-1 p-md-4 shadow">
+                <div class="container row mx-0 px-2 px-md-0">
+                    <div class="container col-md-8 align-self-center p-2 p-md-4">
+                        <h1>Project <u>{{ project.shortname }}</u>
+                            {% if not project.active %}
+                            <small class="text-muted">(Archived)</small>
+                            {% endif %}
+                        </h1>
+                    </div>
+                    <div class="container col-md-4 align-self-center text-right p-2 p-md-3">
+                        <h5 class="card-title">
+                            <b>Client:</b> <u>{{ project.client.first_name }} {{ project.client.last_name }}</u>
+                        </h5>
+                    </div>
+                </div>
+                {% if project.banner %}
+                <div class="container text-center pb-2 pb-md-4">
+                    <img src="{% url 'retrieve_image' 'banner' project.pk %}" style="max-width: 100%; max-height: 100%;">
+                </div>
+                {% endif %}
+                <div class="container py-2 mb-2" id="description-{{ project.pk }}">
+                    <p class="card-text" style="word-wrap: break-word;">
+                        <b>Description:</b> {{ project.description }}
+                    </p>
+                </div>
+                <div class="container-fluid row mx-0">
+                    <div class="align-self-end text-left px-0">
+                        <p class="card-text mb-2 text-muted">
+                            Manager(s):
+                        </p>
+                        <ul>
+                        {% for manager in project.managers.all %}
+                            <li>{{ manager.first_name }} {{ manager.last_name }}</li>
+                        {% empty %}
+                            <li><b>No manager yet.</b></li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-auto align-self-end text-right p-2 m-md-0">
+                    <a class="btn btn-primary" href="{% url 'viewproject' project.client project.shortname %}" role="button">Open Project</a>
+                </div>
+            </div>
+        </div>
+        <div class="w-100 py-2"></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}
