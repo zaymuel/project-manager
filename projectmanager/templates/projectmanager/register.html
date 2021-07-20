@@ -6,82 +6,93 @@
 	<div class="w-100 py-2"></div>
 	<h2>Register</h2>
 	<div class="w-100 py-2"></div>
-
-	<form action="{% url 'register' %}" method="post">
-		{% csrf_token %}
-		<div class="form-group">
-			<input
-				class="form-control"
-				autofocus
-				type="email"
-				id="email"
-				name="email"
-				placeholder="Email Address"
-				required
-			/>
-		</div>
-		<div class="form-group">
-			<div class="form-row">
-				<div class="col">
-					<input
-						class="form-control"
-						type="text"
-						id="firstname"
-						name="firstname"
-						placeholder="First Name"
-						required
-					/>
-				</div>
-				<div class="col">
-					<input
-						class="form-control"
-						type="text"
-						id="lastname"
-						name="lastname"
-						placeholder="Last Name"
-						required
-					/>
-				</div>
-			</div>
-		</div>
-		<div class="form-group">
-			<input
-				class="form-control"
-				type="password"
-				id="password"
-				name="password"
-				placeholder="Password"
-				required
-			/>
-		</div>
-		<div class="form-group">
-			<input
-				class="form-control"
-				type="password"
-				id="confirmation"
-				name="confirmation"
-				placeholder="Confirm Password"
-				required
-			/>
-		</div>
-		<div class="form-group">
-			<div class="form-check">
+	<div class="container-fluid">
+		<form action="{% url 'register' %}" method="post">
+			{% csrf_token %}
+			<div class="form-group">
 				<input
-					class="form-check-input"
-					type="checkbox"
-					value="True"
-					id="defaultCheck1"
-					name="client"
+					class="form-control"
+					autofocus
+					type="email"
+					id="email"
+					name="email"
+					placeholder="Email Address"
+					required
 				/>
-				<label class="form-check-label" for="defaultCheck1">
-					I am a client (faster & preferential treatment)
-				</label>
 			</div>
-		</div>
-		<input class="btn btn-primary" type="submit" value="Register" />
-	</form>
+			<div class="form-group">
+				<input
+					class="form-control"
+					type="text"
+					id="username"
+					name="username"
+					placeholder="(Optional) Username"
+				/>
+			</div>
+			<div class="form-group">
+				<div class="form-row">
+					<div class="col">
+						<input
+							class="form-control"
+							type="text"
+							id="firstname"
+							name="firstname"
+							placeholder="First Name"
+							required
+						/>
+					</div>
+					<div class="col">
+						<input
+							class="form-control"
+							type="text"
+							id="lastname"
+							name="lastname"
+							placeholder="Last Name(s)"
+							required
+						/>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<input
+					class="form-control"
+					type="password"
+					id="password"
+					name="password"
+					placeholder="Password"
+					required
+				/>
+			</div>
+			<div class="form-group">
+				<input
+					class="form-control"
+					type="password"
+					id="confirmation"
+					name="confirmation"
+					placeholder="Confirm Password"
+					required
+				/>
+			</div>
+			<div class="form-group">
+				<div class="form-check">
+					<input
+						class="form-check-input"
+						type="checkbox"
+						value="True"
+						id="defaultCheck1"
+						name="client"
+					/>
+					<label class="form-check-label" for="defaultCheck1">
+						I am a client (faster & preferential treatment)
+					</label>
+				</div>
+			</div>
+			<input class="btn btn-primary" type="submit" value="Registrar" />
+		</form>
+	</div>
+	<div class="w-100 py-2"></div>
 
-	Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+	<p>Already have an account? <a href="{% url 'login' %}">Log In here.</a></p>
 </div>
 {% endblock %} {% block script %}
 

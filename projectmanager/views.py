@@ -1,3 +1,4 @@
+import time
 import os
 import json
 from django.contrib import messages
@@ -6,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.core.validators import EmailValidator
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -82,7 +83,7 @@ def checked_posts(request, projID):
             checkedproj = Project.objects.get(pk=projID)
         except Project.DoesNotExist:
             # Error: project does not exist
-            return JsonResponse({"error": "Project ID does not exist."}, status=400)
+            return JsonResponse({"error": f"Project with ID {projID} does not exist."}, status=400)
 
         user = request.user
         okaycommitlist = [c for c in user.viewed_commits.filter(
@@ -120,11 +121,15 @@ def okay_post(request, postID):
     """
     if request.method == "PUT":
         # see if doc or commit to modify
-        typeofpost = json.loads(request.body).get("type")
+        try:
+            typeofpost = json.loads(request.body).get("type")
+            data = json.loads(request.body).get("okay")
+        except:
+            return JsonResponse({"error": "Please include params type & okay."}, status=400)
+
         if typeofpost not in ["commit", "document"]:
             return JsonResponse({"error": "Post type not supported."}, status=400)
 
-        data = json.loads(request.body).get("okay")
         if data is None:
             return JsonResponse({"error": "Must enter okay or not okay."}, status=400)
 
@@ -177,6 +182,7 @@ def okay_post(request, postID):
                 uservieweddoc.users.remove(request.user)
                 # print(request.user.viewed_commits.filter(commit=commit))
 
+        # time.sleep(0.5) # development purposes
         return HttpResponse(status=204)
 
     # Request method must be via PUT
@@ -185,7 +191,12 @@ def okay_post(request, postID):
 
 
 @login_required
+@transaction.atomic
 def create_commit(request, postID=""):
+    """Receives JSON POST request to create new commit on selected project"""
+
+    # TODO: read atomic on https://docs.djangoproject.com/en/3.1/topics/db/transactions/#tying-transactions-to-http-requests
+
     # Disallow clients to enter screen
     if request.user.is_client():
         messages.add_message(
@@ -210,6 +221,16 @@ def create_commit(request, postID=""):
 
                 # IMPLEMENT SENDING EMAIL TO CLIENT
 
+                return JsonResponse({
+                    "message": "Commit successfully added!",
+                    "redirectUrl": reverse('viewproject',
+                                           args=[
+                                               finalcommit.project.client,
+                                               finalcommit.project.shortname
+                                           ]),
+                }, safe=False)
+
+                """
                 messages.add_message(request, messages.SUCCESS,
                                      "Commit successfully added!")
 
@@ -220,17 +241,28 @@ def create_commit(request, postID=""):
                                                     ])
                                             )
                 # return HttpResponseRedirect(f'/project/{finalcommit.project.client}/{finalcommit.project.shortname}')
-
+                """
             else:
                 # project is archived, unable to commit
+                return JsonResponse({
+                    "message": "Sorry, but that project is archived. \
+                                        To create a new commit in it, please make it active again.",
+                    "redirectUrl": reverse('index'),
+                }, safe=False, status=400)
+                """
                 messages.add_message(request, messages.ERROR,
                                      "Sorry, but that project is archived. \
                                         To create a new commit in it, please make it active again.")
                 return HttpResponseRedirect(reverse('index'))
+                """
         else:
+            return JsonResponse({"error": f"Unable to create commit: {f.errors.as_text()}"}, status=400)
+
+            """
             messages.add_message(request, messages.ERROR,
                                  f"Unable to create commit: {f.errors.as_text()}")
             return render(request, "projectmanager/newcommit.html", {'form': f})
+            """
     else:
         # GET request
         if postID:
@@ -262,12 +294,15 @@ def update_text(request, postID):
         return JsonResponse({"error": "POST request required."}, status=400)
 
     # see if doc or commit to modify
-    typeofpost = json.loads(request.body).get("type")
+    try:
+        typeofpost = json.loads(request.body).get("type")
+        # Get JSON data & updated text
+        edittext = json.loads(request.body).get("text")
+    except:
+        return JsonResponse({"error": "Please include params type & text."}, status=400)
+
     if typeofpost not in ["commit", "document", "projectName", "projectDescription"]:
         return JsonResponse({"error": "Post type not supported."}, status=400)
-
-    # Get JSON data & updated text
-    edittext = json.loads(request.body).get("text")
 
     if edittext is None:
         return JsonResponse({"error": "Must enter okay or not okay."}, status=400)
@@ -720,12 +755,16 @@ def delete_post(request, postID):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
 
-    # see if doc or commit to delete
-    typeofpost = json.loads(request.body).get("type")
+    try:
+        # see if doc or commit to delete
+        typeofpost = json.loads(request.body).get("type")
+        confirmation = json.loads(request.body).get("remove")
+    except:
+        return JsonResponse({"error": "Please include params type & remove."}, status=400)
+
     if typeofpost not in ["commit/image", "commit", "document", "projectBanner"]:
         return JsonResponse({"error": "Post type not supported."}, status=400)
 
-    confirmation = json.loads(request.body).get("remove")
     if confirmation != "remove":
         return JsonResponse({"error": "Command not supported."}, status=400)
 
@@ -780,7 +819,11 @@ def archive_project(request, projID):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
 
-    confirmation = json.loads(request.body).get("archive")
+    try:
+        confirmation = json.loads(request.body).get("archive")
+    except:
+        return JsonResponse({"error": "Please include param archive."}, status=400)
+
     if confirmation not in ["archive", "unarchive"]:
         return JsonResponse({"error": "Command not supported."}, status=400)
 
@@ -890,6 +933,7 @@ def logout_view(request):
 def register(request):
     if request.method == "POST":
         email = request.POST.get("email").strip()
+        username = request.POST.get("username").strip()
         first = request.POST.get("firstname").strip()
         last = request.POST.get("lastname").strip()
 
@@ -918,15 +962,47 @@ def register(request):
                                  "Passwords must match.")
             return render(request, "projectmanager/register.html")
 
+        no_username = False
+        if not username:
+            no_username = True
+            arroba_index = email.find("@")
+            if arroba_index != -1:
+                username = email[:arroba_index]
+
         # Attempt to create new user
         try:
             user = User.objects.create_user(
-                username=email, email=email, password=password, first_name=first, last_name=last)
+                username=username, email=email, password=password, first_name=first, last_name=last)
             user.save()
-        except IntegrityError:
-            messages.add_message(request, messages.ERROR,
-                                 "Sorry, username already taken.")
-            return render(request, "projectmanager/register.html")
+        except IntegrityError as e:
+            # MySQL error code for duplicate email is 1062
+            # if e.args[0] == 1062:
+            if e.args[0] == 'UNIQUE constraint failed: sistema_user.email':  # this is sqlite3 code
+                messages.add_message(request, messages.ERROR, "Sorry, but that email is already in use. \
+                Please insert an alternative email.")
+                return render(request, "projectmanager/register.html")
+
+            elif no_username:
+                while len(username) > 1:
+                    try:
+                        user = User.objects.create_user(
+                            username=username, email=email, password=password, first_name=first, last_name=last)
+                        user.save()
+                    except IntegrityError:
+                        username = username[:-1]
+                    else:
+                        break
+                if len(username) == 1:
+                    messages.add_message(request, messages.ERROR,
+                                         "Sorry, but you need to create a username. \
+                                             Don't worry, you can still log in via your email.")
+                    return render(request, "projectmanager/register.html")
+
+            else:
+                messages.add_message(request, messages.ERROR,
+                                     "Sorry, something's gone wrong. Please contact the administrator.")
+                return render(request, "projectmanager/register.html")
+
         # Make all new users inactive
         # This way, they cannot log in
         # Except if given explicit permission by admin

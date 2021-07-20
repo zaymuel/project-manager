@@ -25,36 +25,34 @@ function getCookie(name) {
 }
 
 const csrftoken = getCookie("csrftoken");
+var userOkayCommitsId = new Set()
+var userOkayDocumentsId = new Set()
 
-// Array of posts id's which user has liked
-var userOkayCommitsId = [];
-var userOkayDocumentsId = [];
-
-async function userOkayS(projID) {
+async function getLikes(projID) {
   // Register okays in global variables
   const request = new Request(`/okays/${projID}/`, {
     headers: { "X-CSRFToken": csrftoken },
   });
-  fetch(request, {
+  return await fetch(request, {
     method: "GET",
     mode: "same-origin", // Do not send CSRF token to another domain.
   })
     .then((response) => response.json())
     .then(function (response) {
-      // console.log(response);
       // if not null
       if (response.okayCommitIDs) {
-        userOkayCommitsId = response.okayCommitIDs;
+        userOkayCommitsId = new Set(response.okayCommitIDs);
       } else {
-        userOkayCommitsId = [];
+        userOkayCommitsId = new Set()
       }
-
       // if not null
       if (response.okayDocumentIDs) {
-        userOkayDocumentsId = response.okayDocumentIDs;
+        userOkayDocumentsId = new Set(response.okayDocumentIDs);
       } else {
-        userOkayDocumentsId = [];
+        userOkayDocumentsId = new Set()
       }
+    })
+    .catch((error) => console.error(error));
 
       /* debugging tools
       if (response.okayCommitIDs.length === 0) {
@@ -62,18 +60,27 @@ async function userOkayS(projID) {
       } else {
         console.log(`user has ${response.okayCommitIDs.length} okay commits`);
       }*/
-    })
-    .then(putLikesOnPosts)
-    .catch((error) => console.log(error));
+}
+
+async function userOkayS(projID) {
+  await getLikes(projID)
+  await this.putLikesOnPosts();
 }
 
 function putLikesOnPosts() {
-  document.querySelectorAll(".commit").forEach((commit) => {
-    okayButtons(Number(commit.dataset.id), "commit");
-  });
-  document.querySelectorAll(".document").forEach((document) => {
-    okayButtons(Number(document.dataset.id), "document");
-  });
+  var commitList = document.querySelectorAll(".commit")
+  if (commitList.length != 0) {
+    commitList.forEach((commit) => {
+      okayButtons(Number(commit.dataset.id), "commit");
+    });
+  }
+
+  var documentList = document.querySelectorAll(".document")
+  if (documentList.length != 0) {
+    documentList.forEach((document) => {
+      okayButtons(Number(document.dataset.id), "document");
+    });
+  }
 }
 
 function okayButtons(postID, type) {
@@ -83,19 +90,20 @@ function okayButtons(postID, type) {
   }
 
   btn = document.createElement("button");
-  btn.innerHTML = `read ✅`;
 
   // commits
   if (type === "commit") {
-    if (userOkayCommitsId.includes(postID)) {
+    if (userOkayCommitsId.has(postID)) {
       // User has already okay'd commit
-      btn.classList = `btn btn-success `;
+      btn.innerHTML = `read ✅`;
+      btn.classList = `btn btn-success`;
       // Offer to un-okay commit
       btn.addEventListener("click", function () {
         postSetRead("commit", postID, false);
       });
     } else {
       // User has not okay'd commit
+      btn.innerHTML = `read ❌`;
       btn.classList = `btn btn-outline-success`;
       // Offer to okay
       btn.addEventListener("click", function () {
@@ -105,15 +113,17 @@ function okayButtons(postID, type) {
   }
   // documents
   else if (type === "document") {
-    if (userOkayDocumentsId.includes(postID)) {
+    if (userOkayDocumentsId.has(postID)) {
       // User has already okay'd document
-      btn.classList = `btn btn-success `;
+      btn.innerHTML = `lido ✅`;
+      btn.classList = `btn btn-success`;
       // Offer to un-okay document
       btn.addEventListener("click", function () {
         postSetRead("document", postID, false);
       });
     } else {
       // User has not okay'd document
+      btn.innerHTML = `lido ❌`;
       btn.classList = `btn btn-outline-success`;
       // Offer to okay
       btn.addEventListener("click", function () {
@@ -131,7 +141,7 @@ async function postSetRead(type, postID, yayornay) {
     headers: { "X-CSRFToken": csrftoken },
   });
 
-  fetch(request, {
+  await fetch(request, {
     method: "PUT",
     mode: "same-origin", // Do not send CSRF token to another domain.
     body: JSON.stringify({
@@ -139,12 +149,11 @@ async function postSetRead(type, postID, yayornay) {
       okay: `${yayornay ? true : false}`,
     }),
   })
-    .then(await new Promise((r) => setTimeout(r, 50)))
-    .then(userOkayS(Number(getProjectID())))
-    .then(await new Promise((r) => setTimeout(r, 50)))
     .catch(function (error) {
       console.error(`unable to set read; "${error}"`);
     });
+
+  await this.userOkayS(Number(getProjectID()))
 }
 
 function editPost(type, postId) {
@@ -210,7 +219,7 @@ function editPost(type, postId) {
                   ? `Alter Commit Image`
                   : `${
                       isdocument
-                        ? `Alter Uploaded Document`
+                        ? `Alter Uploaded Document (send new)`
                         : `Upload Commit Image`
                     }`
               }
@@ -283,7 +292,11 @@ function editPost(type, postId) {
           <h2 class="mb-0">
             <button class="btn btn-info btn-block text-left" type="button" data-toggle="collapse"
             data-target="#collapseThree-${type}-${postId}" aria-expanded="false" aria-controls="collapseThree-${type}-${postId}">
-              Delete ${type}
+              Delete ${
+                isdocument
+                  ? `Document`
+                  : `Commit`
+              }
             </button>
           </h2>
         </div>
@@ -481,7 +494,7 @@ function editProject() {
         <h2 class="mb-0">
           <button class="btn btn-info btn-block text-left" type="button" data-toggle="collapse"
           data-target="#collapseFour-project" aria-expanded="false" aria-controls="collapseFour-project">
-            Archive Project
+            ${isProjArchived ? "Un-Archive" : "Archive"} Project
           </button>
         </h2>
       </div>

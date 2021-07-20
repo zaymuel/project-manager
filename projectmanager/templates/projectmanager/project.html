@@ -80,10 +80,12 @@
                 <div class="container-fluid row mx-0 px-1 justify-content-md-center">
                     <h2>Commits ({{ project.commit_count }}):</h2>
                     <div class="w-100 py-1"></div>
-                    {% if user in project.managers.all or user.is_staff and project.active %}
+                    {% if project.active %}
+                    {% if user in project.managers.all or user.is_staff %}
                     <a class="btn btn-primary" href="{% url 're_create_commit' project.pk %}">
                         Add new Commit
                     </a>
+                    {% endif %}
                     {% endif %}
                     <div class="w-100 py-1"></div>
                     <ul class="list-group list-group-flush container-fluid">
@@ -107,7 +109,7 @@
                                     <div class="card card-body p-md-3 p-1">
                                         <!-- Button trigger modal -->
                                         <button type="button" class="btn btn-link p-md-3 p-1" data-toggle="modal" data-target="#commit-modal-{{ commit.pk }}">
-                                            <img src="{% url 'retrieve_image' 'commit' commit.pk %}" style="max-width: 100%; max-height: 100%;">
+                                            <img src="{% url 'retrieve_image' 'commit' commit.pk %}" loading="lazy" style="max-width: 100%; max-height: 100%;">
                                         </button>
                                     </div>
                                     <div class="card-footer text-muted text-right">Click to enlarge</div>
@@ -122,7 +124,7 @@
                                                     <span class="badge badge-danger align-middle" aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
-                                            <img src="{% url 'retrieve_image' 'commit' commit.pk %}" style="width: 100%; height: 100%;">
+                                            <img src="{% url 'retrieve_image' 'commit' commit.pk %}" loading="lazy" style="width: 100%; height: 100%;">
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                                             </div>
@@ -138,7 +140,7 @@
                             </div>
                         </li>
                         {% empty %}
-                        <li class="list-group-item commit px-md-4 px-0">
+                        <li class="list-group-item no-commit px-md-4 px-0">
                             <div class="container-fluid">
                                 <p><b>No commit yet.</b></p>
                             </div>
@@ -151,10 +153,12 @@
                 <div class="container-fluid row mx-0 justify-content-md-center">
                     <h2>Documents:</h2>
                     <div class="w-100 py-1"></div>
-                    {% if user in project.managers.all or user.is_staff and project.active %}
+                    {% if project.active %}
+                    {% if user in project.managers.all or user.is_staff %}
                     <a class="btn btn-primary" href="{% url 're_upload_file' project.pk %}">
                         Add new Document
                     </a>
+                    {% endif %}
                     {% endif %}
                     <div class="w-100 py-1"></div>
                     <ul class="list-group list-group-flush container-fluid">
@@ -179,7 +183,7 @@
                             </div>
                         </li>
                         {% empty %}
-                        <li class="list-group-item document px-md-4 px-0">
+                        <li class="list-group-item no-document px-md-4 px-0">
                             <div class="container-fluid text-wrap" id="text-document-{{ document.pk }}">
                                 <p class="text-wrap"><b>No Documents yet.</b></p>
                             </div>
@@ -195,5 +199,5 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'projectmanager/projectManager.js' %}"></script> 
+<script src="{% static 'projectmanager/projectManager.js' %}"></script>
 {% endblock %}

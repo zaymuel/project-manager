@@ -10,6 +10,25 @@
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
 
+        
+        <!-- Descriptions and indexing info -->
+        <!-- <meta name="application-name" content="">
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <meta name="author" content=""> -->
+
+        <!-- Facebook/LinkedIn Share -->
+        <!-- <meta property="og:url" content="" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="" />
+        <meta property="og:image" content="" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        <meta property="og:description" content="" /> -->
+
+        <title>{% block title %}Project Manager: {% endblock %}</title>
+
         <!-- Bootstrap CSS -->
         <link
             rel="stylesheet"
@@ -17,21 +36,32 @@
             integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
             crossorigin="anonymous"
         />
+        <link href="{% static 'projectmanager/styles.css' %}" rel="stylesheet" />
 
-        <title>{% block title %}Project Manager: {% endblock %}</title>
+        
+    <!-- Startup configuration
+    <link rel="manifest" href="{% static 'projectmanager/manifest.webmanifest' %}">
+    -->
 
-        <link
-            href="{% static 'projectmanager/styles.css' %}"
-            rel="stylesheet"
-        />
-        {% block script %} {% endblock %}
+        <!-- Icons -->
+        <!-- <link rel="icon" href="{% static 'projectmanager/favicon.ico' %}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'projectmanager/apple-touch-icon.png' %}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{% static 'projectmanager/favicon-32x32.png' %}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{% static 'projectmanager/favicon-16x16.png' %}"> -->
+
+
+        {% block script %}
+        {% endblock %}
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-warning">
-            <a class="navbar-brand" href="{% url 'index' %}">Project Manager</a>
-
-            <div>
-                <ul class="navbar-nav mr-auto">
+            <a class="navbar-brand mr-0 mr-sm-3" href="{% url 'index' %}">Project Manager</a>
+            <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation"
+             class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav mr-auto mt-2 text-right">
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a

@@ -8,7 +8,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    email = models.EmailField(unique=True)
 
     def is_client(self):
         # If user has a group
@@ -41,7 +41,7 @@ class Project(models.Model):
         return int(self.commits.count())
 
     def __str__(self):
-        return f"{self.pk}: {self.client}'s '{self.shortname}' project: '{self.description[:20]}'"
+        return f"{self.pk}: {self.client}'s '{self.shortname}' {self.active} active project: '{self.description[:20]}'"
 
 
 def commit_directory_path(instance, filename):
@@ -110,6 +110,22 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ('client', 'shortname', 'banner', 'description', 'managers')
+
+        labels = {
+            'client': 'Client',
+            'shortname': "Project's short name",
+            'banner': 'Image',
+            'description': 'Description',
+            'managers': 'Project Managers',
+        }
+
+        # help_texts = {'shortname': '64 character maximum.',}
+        error_messages = {
+            'shortname': {
+                'max_length': "This project short name is too long.",
+            },
+        }
+
         widgets = {
             'client': forms.Select(attrs={'class': 'form-control'}),
             'shortname': forms.Textarea(attrs={'class': 'form-control', 'cols': 10, 'rows': 2}),
@@ -120,7 +136,7 @@ class ProjectForm(forms.ModelForm):
 
 
 class CommitForm(forms.ModelForm):
-    project = forms.ModelChoiceField(queryset=Project.objects.all(),
+    project = forms.ModelChoiceField(queryset=Project.objects.filter(active=True).all(), label=('Project'),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, user, *args, **kwargs):
@@ -133,6 +149,11 @@ class CommitForm(forms.ModelForm):
         model = Commit
         fields = ('project', 'message', 'image')
 
+        labels = {
+            'message': 'Message',
+            'image': 'Image',
+        }
+
         widgets = {
             'message': forms.Textarea(attrs={'class': 'form-control', 'cols': 80, 'rows': 20}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -140,7 +161,7 @@ class CommitForm(forms.ModelForm):
 
 
 class DocumentForm(forms.ModelForm):
-    project = forms.ModelChoiceField(queryset=Project.objects.all(),
+    project = forms.ModelChoiceField(queryset=Project.objects.filter(active=True).all(), label=('Project'),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, user, *args, **kwargs):
@@ -153,14 +174,15 @@ class DocumentForm(forms.ModelForm):
         model = Document
         fields = ('project', 'message', 'document')
 
+        labels = {
+            'message': 'Message',
+            'document': 'Send PDF Document',
+        }
+
         widgets = {
             'message': forms.Textarea(attrs={'class': 'form-control', 'cols': 80, 'rows': 20}),
             'document': forms.ClearableFileInput(
                 attrs={'class': 'form-control',
                        'accept': '.pdf', 'required': True}
             ),
-        }
-
-        labels = {
-            'document': 'PDF Document upload',
         }

@@ -10,11 +10,12 @@
     <div class="w-100 py-1"></div>
     <div class="container" id="NewCommit">
         <div class="card card-body bg-light">
-            <form enctype="multipart/form-data" action="{% url 'create_commit' %}" method="POST" id="compose-project">
+            <form enctype="multipart/form-data" id="compose-project">
                 {% csrf_token %}
                 {{ form }}
+                <div class="w-100 py-1"></div>
                 <div class="container text-right">
-                    <input type="submit" class="btn btn-primary" />
+                    <input type="submit" class="btn btn-primary" id="submit" />
                 </div>
             </form>
         </div>
@@ -29,4 +30,12 @@
         <div class="w-100 py-1"></div>
     </div>
 </div>
+{% endblock %}
+
+{% block script %}
+
+<script src="{% static 'projectmanager/preventProjChange.js' %}"></script>
+<script type="module" src="{% static 'projectmanager/node_modules/compressorjs/dist/compressor.esm.js' %}"></script>
+<script type="module" src="{% static 'projectmanager/clientImageCompressor.js' %}"></script>
+
 {% endblock %}

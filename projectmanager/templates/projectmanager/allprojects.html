@@ -3,16 +3,15 @@
 
 {% block body %}
 <div class="container">
-    <div class="container-fluid row">
-        <div class="col-12 col-md-8">
-            <h1 class="display-3 py-2">All 
-                {% if active %}
-                Active
-                {% else %}
-                Archived
-                {% endif %}
-                Projects</h1>
-        </div>
+    <div class="container-fluid row p-0 px-sm-2 ml-0 ml-sm-2">
+        <h1 class="display-3 py-2 text-center">All 
+            {% if active %}
+            Active
+            {% else %}
+            Archived
+            {% endif %}
+            Projects
+        </h1>
     </div>
     <div class="w-100 py-2"></div>
     <div class="w-100 py-1"></div>
@@ -60,10 +59,35 @@
                     </div>
                 </div>
                 <div class="col-auto align-self-end text-right p-2 m-md-0">
-                    <a class="btn btn-primary" href="{% url 'viewproject' project.client project.shortname %}" role="button">Open Project</a>
+                    <a class="btn btn-primary" href="{% url 'viewproject' project.client project.shortname %}" role="button">
+                        Open Project
+                    </a>
                 </div>
             </div>
         </div>
+        <div class="w-100 py-2"></div>
+        {% empty %}
+        <p class="h3">
+            Oops... It looks like there are no  
+            {% if active %}
+            active
+            {% else %}
+            archived
+            {% endif %}
+            projects for you.
+        </p>
+        <div class="w-100 py-2"></div>
+        <p class="lead"><b>
+            It could've been some past project has been
+            {% if active %}
+            <a href="{% url 'archived_projects' %}">archived</a>.
+            {% else %}
+            <a href="{% url 'index' %}">activated</a>.
+            {% endif %}
+            In case you don't have projects with us yet, please wait
+            until a team member add you in one! 😄
+        </b>
+        </p>
         <div class="w-100 py-2"></div>
         {% endfor %}
     </div>
