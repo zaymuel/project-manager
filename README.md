@@ -33,7 +33,7 @@ Project Manager allows engineers, supervisors, and overseers to manage all work 
   - `tests.py` contains the tests required for GitHub Actions to validate the build,
   - `urls.py` contains the URL patterns and routes for the application,
   - `views.py` contains all views associated with each URL pattern.
-- `./static/` contains collected static files by `manage.py` (just `django-admin` files & `styles.css`).
+- `./staticfiles/` contains collected static files by `manage.py` (just `django-admin` files & `styles.css`).
 - `.gitignore` contains git ignored files (mainly cache files).
 - `.db.sqlite3` contains the `SQLite` database needed for Django.
 - `.manage.py` is the Django executable for commands.
