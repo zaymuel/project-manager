@@ -977,7 +977,7 @@ def register(request):
         except IntegrityError as e:
             # MySQL error code for duplicate email is 1062
             # if e.args[0] == 1062:
-            if e.args[0] == 'UNIQUE constraint failed: sistema_user.email':  # this is sqlite3 code
+            if e.args[0] == 'UNIQUE constraint failed: projectmanager_user.email':  # this is sqlite3 code
                 messages.add_message(request, messages.ERROR, "Sorry, but that email is already in use. \
                 Please insert an alternative email.")
                 return render(request, "projectmanager/register.html")
