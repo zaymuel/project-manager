@@ -16,6 +16,39 @@ Project Manager allows foremen, managers, and workers to commit the evolution of
 
 Project Manager allows engineers, supervisors, and overseers to manage all work currently in progress to the project. Unlike foremen, engineers have special admin privileges, being members of the Django `staff` group in the admin panel, in addition to inheriting all permissions of the former group. As well as adding and removing project managers in each project, engineers can manage other users and their groups, being able, for example, to add new members of the team, which were recently registered, or remove them or their privileges.
 
+## Installation: How to
+
+To install the project and run it, there are only 3 basic steps to follow:
+
+First of all, navigate to your desired installation folder. Then, run
+
+```shell
+git clone https://github.com/zaymuel/project-manager
+```
+
+This will create a folder inside your parent directory called `project-manager`. Next, run
+
+```shell
+cd project-manager
+```
+
+to move your console to the newly created folder where the project lives. Now that our project is cloned into your computer and we are on its root folder, we just have to actually run Python to take care of our local server!
+
+From now on, every time you want to run the program, you only need to use the following command:
+
+```shell
+python manage.py runserver
+```
+
+This will output something like:
+
+```shell
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+```
+
+In which case you just need to follow the specified link (here, `http://127.0.0.1:8000/`). That's it! :tada:
+
 ## Contents
 
 - `./.github` contains the CI YAML needed for GitHub Actions
