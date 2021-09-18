@@ -32,9 +32,13 @@ This will create a folder inside your parent directory called `project-manager`.
 cd project-manager
 ```
 
-to move your console to the newly created folder where the project lives. Now that our project is cloned into your computer and we are on its root folder, we just have to actually run Python to take care of our local server!
+to move your console to the newly created folder where the project lives. Now that our project is cloned into your computer and we are on its root folder, we run `pip` to verify your local dependencies, and install the necessary ones:
 
-From now on, every time you want to run the program, you only need to use the following command:
+```shell
+python -m pip install -r requirements.txt
+```
+
+And, now, we just have to actually run Python to take care of our local server! From now on, every time you want to run the program, you only need to use the following command:
 
 ```shell
 python manage.py runserver
