@@ -55,27 +55,27 @@ In which case you just need to follow the specified link (here, `http://127.0.0.
 
 ## Contents
 
-- `./.github` contains the CI YAML needed for GitHub Actions
-- `./capstone` contains the overall `Project Manager` files (settings and such).
-- `./media/` contains, as the name suggests, all media files relating to the project's models, structured in the following way:
+- `.github/` contains the CI YAML needed for GitHub Actions (ignorable).
+- `capstone/` contains the overall `Project Manager` files (`Django` settings and root `url` config).
+- `media/` contains, as the name suggests, all media files relating to the project's models, structured in the following way:
   - `<projectname>/` contains all media files for the `projectname` Project model (documents and images):
     - `banners/` contains, if present, the banner for the `projectname` Project model,
-    - `commits/` contains, if present, the images associated with the `image` field on the Commit model related to `projectname`,
-    - `docs/` contains, if present, the documents associated with each `image` field on the Commit model related to the `projectname` Project model.
-- `./projectmanager/` contains the specific files and settings for the `Project Manager` app:
+    - `commits/` contains, if present, the images associated with the `image` field on the Commit model related to the `projectname` Project model,
+    - `docs/` contains, if present, the documents associated with each Document model related to the `projectname` Project model.
+- `projectmanager/` contains the specific files and settings for the `Project Manager` app:
   - `migrations/` contains the database migrations,
-  - `static/` contains the static files (`JavaScript` scripts and `CSS` stylings),
-  - `templates/` contains the `HTML` templates for all the different views in the project,
+  - `static/projectmanager/` contains the static files (`JavaScript` scripts, `Node.js` modules, and `CSS` stylings),
+  - `templates/projectmanager/` contains the `HTML` templates for all the different views in the project,
   - `models.py` contains the models needed for the application,
-  - `tests.py` contains the tests required for GitHub Actions to validate the build,
-  - `urls.py` contains the URL patterns and routes for the application,
+  - `tests.py` contains the Django tests (required for GitHub Actions to validate the build, but also for you to execute `py manage.py test` to see if your current workstate is not conflicting),
+  - `urls.py` contains the URL patterns and routes for the current app,
   - `views.py` contains all views associated with each URL pattern.
-- `./staticfiles/` contains collected static files by `manage.py` (just `django-admin` files & `styles.css`).
-- `.gitignore` contains git ignored files (mainly cache files).
-- `.db.sqlite3` contains the `SQLite` database needed for Django.
-- `.manage.py` is the Django executable for commands.
-- `.README.md` is this very file, which outlines the main parts of this project.
-- `.requirements.txt` contains the required modules for the `Project Manager` project (`Django`, `Pillow`, `django-cleanup`, etc).
+- `staticfiles/` contains collected static files by `manage.py` (`django-admin` files  and all our `CSS` & `JS` files: styles and scripts).
+- `.gitignore` contains files ignored by git (mainly cache files).
+- `db.sqlite3` contains the `SQLite` database needed for Django (testing purposes only).
+- `manage.py` is the Django executable for commands.
+- `README.md` is _this very file_, which outlines the main parts of this project.
+- `requirements.txt` contains the required modules for the `Project Manager` project (`Django`, `Pillow`, `django-cleanup`, etc).
 
 ## Additional Information
 
