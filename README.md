@@ -1,5 +1,8 @@
 # Project Manager
 
+> **⚠️ ARCHIVED REPOSITORY**  
+> This repository is archived and no longer maintained. It was created as a final project for CS50w and is preserved here for reference purposes. No further updates, bug fixes, or feature development will be provided.
+
 ## Description
 
 Project Manager is, as the name suggests, a project management system (inspired in Git) that provides useful functionalities for clients, contractors, and project managers. It was my final project for CS50w; "a complex dynamic website which uses Django on the back-end and JavaScript on the front-end".
